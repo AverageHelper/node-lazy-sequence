@@ -1,0 +1,29 @@
+{
+  "name": "node-lazy-array",
+  "version": "0.0.1",
+  "description": "An implementation of lazy arrays in Node.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AverageHelper/node-lazy-array.git"
+  },
+  "keywords": [
+    "lazy",
+    "array"
+  ],
+  "author": "AverageHelper",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AverageHelper/node-lazy-array/issues"
+  },
+  "homepage": "https://github.com/AverageHelper/node-lazy-array#readme",
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "test": "jest"
+  },
+  "main": "dist/index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "jest": "^26.6.3",
+    "typescript": "^4.2.2"
+  }
+}
