@@ -1,1 +1,2 @@
-export { LazyArray } from "./LazyArray";
+import "source-map-support/register";
+export { LazySequence } from "./LazySequence";
