@@ -1,12 +1,8 @@
-export function lazy<T>(array: Array<T>): LazySequence<T> {
-  return new LazySequence(array);
-}
-
 /**
  * An object that wraps an array of elements and allows the building and executing of lazy
  * operations on that array.
  */
-export class LazySequence<T> {
+export default class LazySequence<T> {
   private storage: Array<T>;
 
   constructor(array: Array<T> = []) {
@@ -30,7 +26,7 @@ export class LazySequence<T> {
   }
 }
 
-export class LazyMapSequence<Base extends LazySequence<T>, T, U> extends LazySequence<U> {
+class LazyMapSequence<Base extends LazySequence<T>, T, U> extends LazySequence<U> {
   readonly base: Base;
   readonly transform: (element: T, index: number) => U;
 

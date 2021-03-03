@@ -1,6 +1,5 @@
 import "jest-extended";
-import { lazy } from "./LazySequence";
-import type { LazySequence } from "./LazySequence";
+import LazySequence from "./LazySequence";
 
 describe("LazySequence", () => {
   let archetype: Array<number>;
@@ -8,7 +7,7 @@ describe("LazySequence", () => {
 
   beforeEach(() => {
     archetype = [5, 4, 3, 2, 1];
-    lazyArray = lazy(archetype);
+    lazyArray = new LazySequence(archetype);
   });
 
   test("has a length", () => {
