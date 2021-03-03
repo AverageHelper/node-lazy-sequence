@@ -1,0 +1,18 @@
+{
+  "projects": [
+    {
+      "displayName": "src:node",
+      "clearMocks": true,
+      "preset": "ts-jest",
+      "setupFilesAfterEnv": ["jest-extended"],
+      "testEnvironment": "node",
+      "testPathIgnorePatterns": ["/node_modules/"],
+      "testRegex": ["src/.*\\.test\\.(t|j)sx?$"]
+    }
+  ],
+  "collectCoverage": true,
+  "collectCoverageFrom": ["src/**/*[!.d][!.test].{js,ts}"],
+  "coverageDirectory": "coverage",
+  "coveragePathIgnorePatterns": ["/node_modules/"],
+  "verbose": true
+}
