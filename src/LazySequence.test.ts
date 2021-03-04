@@ -106,6 +106,24 @@ describe("LazySequence", () => {
         .toArray();
       expect(actual).toStrictEqual(expected);
     });
+
+    test("runs filters in the correct order", () => {
+      // Following the example in https://bugs.swift.org/browse/SR-11841
+      const array = ["1", "2", "3"];
+      const prints: Array<string> = [];
+      new LazySequence(array)
+        .filter(() => {
+          prints.push("A");
+          return true;
+        })
+        .filter(() => {
+          prints.push("B");
+          return true;
+        })
+        .toArray();
+
+      expect(prints).toStrictEqual(["A", "B", "A", "B", "A", "B"]);
+    });
   });
 
   describe("combined", () => {
