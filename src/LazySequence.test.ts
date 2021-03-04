@@ -19,11 +19,12 @@ describe("LazySequence", () => {
   });
 
   test("is iterable with the same order as a plain array", () => {
-    expect.assertions(lazyArray.length * 3);
-    lazyArray.forEach((element, index) => {
+    expect.assertions(lazyArray.length * 2);
+    let index = 0;
+    lazyArray.forEach(element => {
       expect(element).toBeNumber();
-      expect(index).toBeNumber();
       expect(archetype[index]).toStrictEqual(element);
+      index += 1;
     });
   });
 
@@ -153,31 +154,33 @@ describe("LazySequence", () => {
     test("can map, filter, then map", () => {
       const toString = (v: number) => v.toString();
       const lessThanTwo = (v: string) => v.length < 2;
+      const integer = (v: string) => parseInt(v, 10);
       const expected = archetype //
         .map(toString)
         .filter(lessThanTwo)
-        .map(parseInt);
+        .map(integer);
       const actual = lazyArray //
         .map(toString)
         .filter(lessThanTwo)
-        .map(parseInt)
+        .map(integer)
         .toArray();
       expect(actual).toStrictEqual(expected);
     });
 
     test("can map, filter, map, then filter", () => {
       const toString = (v: number) => v.toString();
-      const lessThanTwo = (v: string) => v.length < 2;
+      const shorterThanTwo = (v: string) => v.length < 2;
+      const integer = (v: string) => parseInt(v, 10);
       const moreThanOne = (v: number) => v > 1;
       const expected = archetype //
         .map(toString)
-        .filter(lessThanTwo)
-        .map(parseInt)
+        .filter(shorterThanTwo)
+        .map(integer)
         .filter(moreThanOne);
       const actual = lazyArray //
         .map(toString)
-        .filter(lessThanTwo)
-        .map(parseInt)
+        .filter(shorterThanTwo)
+        .map(integer)
         .filter(moreThanOne)
         .toArray();
       expect(actual).toStrictEqual(expected);

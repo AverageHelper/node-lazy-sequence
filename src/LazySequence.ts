@@ -19,20 +19,20 @@ export default class LazySequence<T> {
   }
 
   /**
-   * Calls a callback function for every element in the sequence.
-   *
-   * @param callback A function that receives an element and that element's index in the sequence.
-   */
-  forEach(callback: (element: T, index: number) => void): void {
-    return this.storage.forEach(callback);
-  }
-
-  /**
    * Creates a JavaScript `Array` from the sequence, applying any transformations previously
    * registered.
    */
   toArray(): Array<T> {
     return this.storage.slice();
+  }
+
+  /**
+   * Calls a callback function for every element in the sequence.
+   *
+   * @param callback A function that receives an element of the sequence.
+   */
+  forEach(callback: (element: T) => void): void {
+    return this.storage.forEach(callback);
   }
 
   /**
@@ -45,9 +45,10 @@ export default class LazySequence<T> {
    * No calculations are performed until the sequence's elements are iterated
    * over or a new array is generated from the sequence by calling the `toArray` method.
    *
-   * @param transform A function that receives an element and its index in the sequence, and returns a new value.
+   * @param transform A function that receives an element and returns a new value. The element's index in the sequence
+   * should not be assumed to be consistent, as some elements may be skipped by filters.
    */
-  map<U>(transform: (element: T, index: number) => U): LazyMapSequence<this, T, U> {
+  map<U>(transform: (element: T) => U): LazyMapSequence<this, T, U> {
     return new LazyMapSequence(this, transform);
   }
 
@@ -60,7 +61,9 @@ export default class LazySequence<T> {
    * No calculations are performed until the sequence's elements are iterated
    * over or a new array is generated from the sequence by calling the `toArray` method.
    *
-   * @param predicate
+   * @param predicate A function that receives an element and returns `true` if the element should be in the final
+   * sequence. The element's index in the sequence should not be assumed to be consistent, as some elements may be
+   * skipped by filters.
    */
   filter(predicate: (element: T) => boolean): LazyFilterSequence<this, T> {
     return new LazyFilterSequence(this, predicate);
@@ -74,9 +77,9 @@ export default class LazySequence<T> {
  */
 class LazyMapSequence<Base extends LazySequence<T>, T, U> extends LazySequence<U> {
   readonly base: Base;
-  readonly transform: (element: T, index: number) => U;
+  readonly transform: (element: T) => U;
 
-  constructor(base: Base, transform: (element: T, index: number) => U) {
+  constructor(base: Base, transform: (element: T) => U) {
     super();
     this.base = base;
     this.transform = transform;
@@ -86,21 +89,24 @@ class LazyMapSequence<Base extends LazySequence<T>, T, U> extends LazySequence<U
     return this.base.length;
   }
 
-  forEach(callback: (element: U, index: number) => void): void {
-    return this.base.forEach((element, index) => {
-      const newElement = this.transform(element, index);
-      callback(newElement, index);
-    });
-  }
-
   toArray(): Array<U> {
-    const result = Array<U>(this.base.length);
+    // DON'T try to use `map` here. On a lazy sequence, `map` only constructs a `LazyMapSequence`.
+    const result: Array<U> = [];
 
-    this.base.forEach((element, index) => {
-      result[index] = this.transform(element, index);
+    this.forEach(element => {
+      result.push(element);
     });
 
     return result;
+  }
+
+  forEach(callback: (element: U) => void): void {
+    // This is where the magic happens
+    return this.base.forEach(element => {
+      // I've considered using the element's index and transforming `undefined` on an array to avoid dynamic resizing costs, but with `filter` calls in the chain, there's a chance that `this.transform` would return `undefined`. Better to just push.
+      const newElement = this.transform(element);
+      callback(newElement);
+    });
   }
 }
 
@@ -123,23 +129,23 @@ class LazyFilterSequence<Base extends LazySequence<T>, T> extends LazySequence<T
     return this.toArray().length;
   }
 
-  forEach(callback: (element: T, index: number) => void): void {
-    return this.base.forEach((element, index) => {
-      if (this.shouldInclude(element)) {
-        callback(element, index);
-      }
-    });
-  }
-
   toArray(): Array<T> {
+    // DON'T try to use `map` or `filter` here. These are lazy operations.
     const result: Array<T> = [];
 
-    this.base.forEach(element => {
-      if (this.shouldInclude(element)) {
-        result.push(element);
-      }
+    this.forEach(element => {
+      result.push(element);
     });
 
     return result;
+  }
+
+  forEach(callback: (element: T) => void): void {
+    // This is where the magic happens
+    return this.base.forEach(element => {
+      if (this.shouldInclude(element)) {
+        callback(element);
+      }
+    });
   }
 }
