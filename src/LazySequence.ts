@@ -15,7 +15,7 @@ export default class LazySequence<T> {
    * The number of elements contained in the sequence.
    */
   get length(): number {
-    return this.storage.length;
+    return this.toArray().length;
   }
 
   /**
@@ -23,7 +23,14 @@ export default class LazySequence<T> {
    * registered.
    */
   toArray(): Array<T> {
-    return this.storage.slice();
+    // DON'T try to use `map` or `filter` here. These are lazy operations.
+    const result: Array<T> = [];
+
+    this.forEach(element => {
+      result.push(element);
+    });
+
+    return result;
   }
 
   /**
@@ -85,21 +92,6 @@ class LazyMapSequence<Base extends LazySequence<T>, T, U> extends LazySequence<U
     this.transform = transform;
   }
 
-  get length(): number {
-    return this.base.length;
-  }
-
-  toArray(): Array<U> {
-    // DON'T try to use `map` here. On a lazy sequence, `map` only constructs a `LazyMapSequence`.
-    const result: Array<U> = [];
-
-    this.forEach(element => {
-      result.push(element);
-    });
-
-    return result;
-  }
-
   forEach(callback: (element: U) => void): void {
     // This is where the magic happens
     return this.base.forEach(element => {
@@ -123,21 +115,6 @@ class LazyFilterSequence<Base extends LazySequence<T>, T> extends LazySequence<T
     super();
     this.base = base;
     this.shouldInclude = predicate;
-  }
-
-  get length(): number {
-    return this.toArray().length;
-  }
-
-  toArray(): Array<T> {
-    // DON'T try to use `map` or `filter` here. These are lazy operations.
-    const result: Array<T> = [];
-
-    this.forEach(element => {
-      result.push(element);
-    });
-
-    return result;
   }
 
   forEach(callback: (element: T) => void): void {
