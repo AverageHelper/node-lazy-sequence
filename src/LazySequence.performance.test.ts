@@ -3,7 +3,7 @@ import type LazySequence from "./LazySequence";
 
 describe("LazySequence performance", () => {
   test("lazy map is no slower than normal map", () => {
-    const arraySize = 80000;
+    const arraySize = 100000;
     const mapping = (n: number) => n * n;
 
     const prepareNormalArray = () => randomArray(arraySize);
@@ -18,7 +18,7 @@ describe("LazySequence performance", () => {
   });
 
   test("lazy map and filter is no slower than normal map and filter", () => {
-    const arraySize = 80000;
+    const arraySize = 100000;
     const mapping = (n: number) => n * n;
     const evens = (n: number) => n % 2 === 0;
     const toString = (n: number) => n.toString();
