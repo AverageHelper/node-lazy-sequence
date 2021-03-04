@@ -5,10 +5,10 @@
  * object's elements.
  */
 export default class LazySequence<T> {
-  private storage: Array<T>;
+  private readonly storage: Array<T>;
 
   constructor(array: Array<T> = []) {
-    this.storage = array.slice();
+    this.storage = array;
   }
 
   /**
