@@ -24,6 +24,10 @@ export default class LazySequence<T> {
   map<U>(transform: (element: T, index: number) => U): LazyMapSequence<this, T, U> {
     return new LazyMapSequence(this, transform);
   }
+
+  filter(predicate: (element: T) => boolean): LazyFilterSequence<this, T> {
+    return new LazyFilterSequence(this, predicate);
+  }
 }
 
 class LazyMapSequence<Base extends LazySequence<T>, T, U> extends LazySequence<U> {
@@ -52,6 +56,41 @@ class LazyMapSequence<Base extends LazySequence<T>, T, U> extends LazySequence<U
 
     this.base.forEach((element, index) => {
       result[index] = this.transform(element, index);
+    });
+
+    return result;
+  }
+}
+
+class LazyFilterSequence<Base extends LazySequence<T>, T> extends LazySequence<T> {
+  readonly base: Base;
+  readonly shouldInclude: (element: T) => boolean;
+
+  constructor(base: Base, predicate: (element: T) => boolean) {
+    super();
+    this.base = base;
+    this.shouldInclude = predicate;
+  }
+
+  get length(): number {
+    return this.toArray().length;
+  }
+
+  forEach(callback: (element: T, index: number) => void): void {
+    return this.base.forEach((element, index) => {
+      if (this.shouldInclude(element)) {
+        callback(element, index);
+      }
+    });
+  }
+
+  toArray(): Array<T> {
+    const result: Array<T> = [];
+
+    this.base.forEach(element => {
+      if (this.shouldInclude(element)) {
+        result.push(element);
+      }
     });
 
     return result;

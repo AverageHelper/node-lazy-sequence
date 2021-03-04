@@ -11,7 +11,7 @@
     }
   ],
   "collectCoverage": true,
-  "collectCoverageFrom": ["src/**/*[!.d][!.test].{js,ts}"],
+  "collectCoverageFrom": ["src/**/*!(.d)!(.test).ts"],
   "coverageDirectory": "coverage",
   "coveragePathIgnorePatterns": ["/node_modules/"],
   "verbose": true
