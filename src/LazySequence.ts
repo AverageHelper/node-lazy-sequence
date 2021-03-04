@@ -39,7 +39,13 @@ export default class LazySequence<T> {
    * @param callback A function that receives an element of the sequence.
    */
   forEach(callback: (element: T) => void): void {
-    return this.storage.forEach(callback);
+    // `forEach` is a tad slower than a normal `for` loop
+    // according to https://levelup.gitconnected.com/which-is-faster-for-for-of-foreach-loops-in-javascript-18dbd9ffbca9
+
+    for (let i = 0; i < this.storage.length; i += 1) {
+      const element = this.storage[i];
+      callback(element);
+    }
   }
 
   /**
@@ -52,8 +58,9 @@ export default class LazySequence<T> {
    * No calculations are performed until the sequence's elements are iterated
    * over or a new array is generated from the sequence by calling the `toArray` method.
    *
-   * @param transform A function that receives an element and returns a new value. The element's index in the sequence
-   * should not be assumed to be consistent, as some elements may be skipped by filters.
+   * @param transform A function that receives an element and returns a new value. The element's
+   * index in the sequence should not be assumed to be consistent, as some elements may be skipped
+   * by filters.
    */
   map<U>(transform: (element: T) => U): LazyMapSequence<this, T, U> {
     return new LazyMapSequence(this, transform);
@@ -68,9 +75,9 @@ export default class LazySequence<T> {
    * No calculations are performed until the sequence's elements are iterated
    * over or a new array is generated from the sequence by calling the `toArray` method.
    *
-   * @param predicate A function that receives an element and returns `true` if the element should be in the final
-   * sequence. The element's index in the sequence should not be assumed to be consistent, as some elements may be
-   * skipped by filters.
+   * @param predicate A function that receives an element and returns `true` if the element should
+   * be in the final sequence. The element's index in the sequence should not be assumed to be
+   * consistent, as some elements may be skipped by filters.
    */
   filter(predicate: (element: T) => boolean): LazyFilterSequence<this, T> {
     return new LazyFilterSequence(this, predicate);
@@ -104,8 +111,8 @@ class LazyMapSequence<Base extends LazySequence<T>, T, U> extends LazySequence<U
 
 /**
  * An object that wraps a lazy sequence and a predicate. When converted to an array, this
- * sequence iterates over the elements of the base sequence and conditionally adds each one to a
- * new array, depending on the result of the predicate.
+ * sequence iterates over the elements of the base sequence and conditionally adds each
+ * one to a new array, depending on the result of the predicate.
  */
 class LazyFilterSequence<Base extends LazySequence<T>, T> extends LazySequence<T> {
   readonly base: Base;
