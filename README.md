@@ -115,7 +115,7 @@ inside a new local `dist/` folder.
 
 The core concept is a bit complicated. Unlike plain JavaScript `Array` mutations, `map` and `filter` operations occur at once, in order, on each element of the array at the first loop. Rather than iterating over the whole sequence once for _each_ operation, `LazySequence` loops exactly _once_ over the sequence, running the registered operations in one go. This behavior saves precious compute time for more important tasks, whatever you want your program to do!
 
-A lazy sequence, as implemented here, doesn't have much performance improvement over regular `Array`s until the array contains about 100,000 items. Algorithmically, the benefits are clear. Realistically, computers prefer repetitive tasks, like running lots of `map`s and then lots of `filter`s, to switching between `map` and `filter` operations quickly.
+A lazy sequence, as implemented here and on many computer systems, doesn't have much performance improvement over regular `Array`s until the array contains about 100,000 items. Algorithmically, the benefits are clear. Realistically, computers prefer repetitive tasks, like running lots of `map`s and then lots of `filter`s, to switching between `map` and `filter` operations quickly.
 
 I'm not sure how to improve the performance of this package much further. Pull requests are welcome!
 
