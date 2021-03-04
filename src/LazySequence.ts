@@ -78,9 +78,9 @@ export default class LazySequence<T> {
 }
 
 /**
- * An object that wraps a sequence and a transformation function. When converted to an array, this
- * sequence iterates over the elements of the base sequence and applies the transformation to each
- * element before returning a newly transformed array.
+ * An object that wraps a lazy sequence and a transformation function. When converted to an array,
+ * this sequence iterates over the elements of the base sequence and applies the transformation to
+ * each element before returning a newly transformed array.
  */
 class LazyMapSequence<Base extends LazySequence<T>, T, U> extends LazySequence<U> {
   readonly base: Base;
@@ -103,7 +103,7 @@ class LazyMapSequence<Base extends LazySequence<T>, T, U> extends LazySequence<U
 }
 
 /**
- * An object that wraps a sequence and a predicate. When converted to an array, this
+ * An object that wraps a lazy sequence and a predicate. When converted to an array, this
  * sequence iterates over the elements of the base sequence and conditionally adds each one to a
  * new array, depending on the result of the predicate.
  */

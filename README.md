@@ -4,10 +4,13 @@
 
 [![Tests](https://github.com/AverageHelper/node-lazy-sequence/actions/workflows/build.yml/badge.svg)](https://github.com/AverageHelper/node-lazy-sequence/actions/workflows/build.yml)
 
+I've long been fascinated by [Swift's `LazySequence` structures](https://developer.apple.com/documentation/swift/lazysequence). The idea of simplifying sequence operations by performing them at once, rather than in several iterations, seems a simple and very reasonable optimization for some circumstances.
+
+Why not have the same in Node?
+
 ## Prerequisites
 
-TODO: Check what Node version we should support.
-This project requires NodeJS (version 10 or later) and NPM.
+This project requires NodeJS (version 6 or later) and NPM.
 [Node](https://nodejs.org/) and [NPM](https://npmjs.org/) are really easy to install.
 To make sure you have them available on your machine,
 try running the following command:
@@ -26,15 +29,15 @@ v10.23.0
   - [Install](#install)
   - [Usage](#usage)
     - [Running the tests](#running-the-tests)
-    - [Linting the code](#linting-the-code)
     - [Building a distribution version](#building-a-distribution-version)
+  - [Performance](#performance)
   - [API](#api)
-    - [Overview](#overview)
     - [`lazy`](#lazy)
     - [`LazySequence`](#lazysequence)
-    - [`toArray`](#toarray)
+    - [`toArray` and `forEach`](#toarray-and-foreach)
+    - [`map`](#map)
+    - [`filter`](#filter)
   - [Contributing](#contributing)
-  - [Credits](#credits)
   - [Built With](#built-with)
   - [Versioning](#versioning)
   - [Authors](#authors)
@@ -50,9 +53,25 @@ $ npm install lazy-sequence
 
 ## Usage
 
+```TypeScript
+import { lazy } from "lazy-sequence";
+
+const foo = ["some", "elements", "go", "here"];
+const bar = lazy(foo)
+  .map(str => str.toLocaleUpperCase())
+  .filter(str => str.length > 2)
+  .map(str => str);
+
+// None of these `map` and `filter` methods have done anything yet!
+
+const baz = bar.toArray(); // Here is where the magic happens
+
+console.log(baz); // ["SOME", "ELEMENTS", "HERE"]
+```
+
 ### Running the tests
 
-Start by cloning this repo on your local machine:
+Start by cloning this repo to your local machine:
 
 ```sh
 $ git clone https://github.com/AverageHelper/node-lazy-sequence.git
@@ -71,13 +90,13 @@ To run all tests with code coverage, run:
 $ npm test
 ```
 
-To run tests on files you've changed, and automatically rerun tests as changes occur, run:
+To run tests on files you've changed and automatically rerun tests as changes occur, run:
 
 ```sh
 $ npm run test:watch
 ```
 
-### Linting the code
+To run the style linter, run:
 
 ```sh
 $ npm run lint
@@ -92,25 +111,11 @@ $ npm run build
 This task will create a distribution version of the project
 inside a new local `dist/` folder.
 
+## Performance
+
+Unlike plain JavaScript `Array` mutations, `map` and `filter` operations occur at once, in order, on each element of the array at the first loop. Rather than iterating over the whole sequence once for _each_ operation, `LazySequence` loops exactly _once_ over the sequence, running the registered operations in one go. This behavior saves precious compute time for more important tasks, whatever you want your program to do!
+
 ## API
-
-### Overview
-
-```TypeScript
-import { lazy } from "lazy-sequence";
-
-const foo = ["some", "elements", "go", "here"];
-const bar = lazy(foo)
-  .map(str => ([str, str.length]))
-  .filter((str, len) => len > 2)
-  .map(str => str);
-
-// None of these `map` and `filter` methods have done anything yet!
-
-const baz = bar.toArray(); // Here is where the magic happens
-
-console.log(baz); // ["some", "elements", "here"]
-```
 
 ### `lazy`
 
@@ -127,7 +132,7 @@ const bar = lazy(foo);
 
 This class is the primary interface for all transformations or queries we might want to perform on our array.
 
-You can create a `LazySequence` yourself using the `lazy` function described above, or bby using its constructor:
+You can create a `LazySequence` yourself using the `lazy` function described above or by using its constructor:
 
 ```TypeScript
 import { LazySequence } from "lazy-sequence";
@@ -135,22 +140,45 @@ import { LazySequence } from "lazy-sequence";
 const foo = new LazySequence(["bar", "baz"]);
 ```
 
-Calling `lazy` on an array is effectually identical to calling this constructor. The array is not explicitly copied, only referenced for when we need to access the data.
+Calling `lazy` on an array is effectually identical to calling this constructor. Neither `lazy` nor `LazySequence` copies that array explicitly. We only reference it later when the data needs to be accessed.
 
-### `toArray`
+### `toArray` and `forEach`
 
-Calling the `toArray` method on a `LazySequence` right after creating the sequence (i.e. no operations have been applied) returns a copy of the original array.
+Calling the `forEach` method on a `LazySequence` right after creating the sequence (i.e., when you've applied no operations) returns a copy of the original array. `forEach` works through the operation tree and ensures that only transformed and filtered elements are returned to the caller.
 
-If any operations, such as `map` or `filter` have been registered on the sequence, then these operations are executed in order for each element in the sequence before returning a new array containing the newly-transformed elements. The original array is left unaltered.
+The `toArray` method works by constructing a new array from the results of `forEach`.
 
-Unlike with normal `Array` mutations, these operations are done at once on each element of the array at the first loop. Rather than iterating over the entirety of the array once for _each_ operation, `LazySequence` loops just _once_, and runs the registered operations in one go. This saves precious compute time for more important tasks, whatever you want your program to do!
+`forEach` executes any `map` or `filter` operations for each sequence element in turn before returning that element to the caller. The original array is left unaltered.
 
-TODO: Add map
-TODO: Add filter
+### `map`
+
+```TypeScript
+const foo: LazySequence<...>;
+...
+const bar = foo
+  .map(a => transform(a));
+```
+
+The `map` method wraps the sequence in a `LazyMapSequence` object. When `forEach` is called on this object, the returned values will have been transformed using the function passed into `map`.
+
+No immediate computations take place until `forEach` or `toArray` is called on the sequence.
+
+### `filter`
+
+```TypeScript
+const foo: LazySequence<...>;
+...
+const bar = foo
+  .filter(a => !!a);
+```
+
+The `filter` method wraps the sequence in a `LazyFilterSequence` object. When `forEach` is called on this object, the only returned values are those for which the function passed into `filter` returns `true`.
+
+No immediate computations take place until `forEach` or `toArray` is called on the sequence.
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests to us.
 
 1.  Fork it!
 2.  Create your feature branch: `git checkout -b my-new-feature`
@@ -158,10 +186,6 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 4.  Commit your changes: `git commit -am 'Add some feature'`
 5.  Push to the branch: `git push origin my-new-feature`
 6.  Submit a pull request :sunglasses:
-
-## Explanation
-
-TODO: Something something Swift.LazySequence
 
 ## Built With
 
