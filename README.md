@@ -2,7 +2,7 @@
 
 > An implementation of lazy arrays in Node.js.
 
-[![Tests](https://github.com/AverageHelper/node-lazy-sequence/actions/workflows/build.yml/badge.svg)](https://github.com/AverageHelper/node-lazy-sequence/actions/workflows/build.yml)
+[![Tests](https://github.com/AverageHelper/node-lazy-sequence/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/AverageHelper/node-lazy-sequence/actions/workflows/build.yml)
 
 I've long been fascinated by [Swift's `LazySequence` structures](https://developer.apple.com/documentation/swift/lazysequence). The idea of simplifying sequence operations by performing them at once, rather than in several iterations, seems a simple and very reasonable optimization for some circumstances.
 
