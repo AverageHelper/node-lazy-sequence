@@ -21,12 +21,20 @@ $ npm -v && node -v
 v10.23.0
 ```
 
+## Install
+
+**BEFORE YOU INSTALL:** please read the [prerequisites](#prerequisites)
+
+```sh
+$ npm install lazy-sequence
+```
+
 ## Table of contents
 
 - [Lazy Sequence](#lazy-sequence)
   - [Prerequisites](#prerequisites)
-  - [Table of contents](#table-of-contents)
   - [Install](#install)
+  - [Table of contents](#table-of-contents)
   - [Usage](#usage)
     - [Running the tests](#running-the-tests)
     - [Building a distribution version](#building-a-distribution-version)
@@ -42,14 +50,6 @@ v10.23.0
   - [Versioning](#versioning)
   - [Authors](#authors)
   - [License](#license)
-
-## Install
-
-**BEFORE YOU INSTALL:** please read the [prerequisites](#prerequisites)
-
-```sh
-$ npm install lazy-sequence
-```
 
 ## Usage
 
