@@ -6,7 +6,7 @@
 
 I've long been fascinated by [Swift's `LazySequence` structures](https://developer.apple.com/documentation/swift/lazysequence). The idea of simplifying sequence operations by performing them at once, rather than in several iterations, seems a simple and very reasonable optimization for some circumstances.
 
-Why not have the same in Node?
+Why not have the same in Node? This is an experiement on how that might go.
 
 ## Prerequisites
 
